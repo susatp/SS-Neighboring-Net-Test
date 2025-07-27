@@ -9,7 +9,8 @@ import webbrowser
 import os
 from pathlib import Path
 
-PORT = 8000
+# Use environment variable for port (Azure sets this automatically)
+PORT = int(os.environ.get('PORT', 8000))
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -24,12 +25,13 @@ def main():
     
     with socketserver.TCPServer(("", PORT), MyHTTPRequestHandler) as httpd:
         print(f"🎭 La Bo Bo Interactive Server")
-        print(f"📡 Server running at: http://localhost:{PORT}")
-        print(f"🌐 Opening browser automatically...")
+        print(f"📡 Server running at: http://0.0.0.0:{PORT}")
         print(f"⏹️  Press Ctrl+C to stop the server")
         
-        # Open browser automatically
-        webbrowser.open(f'http://localhost:{PORT}')
+        # Don't open browser automatically in production
+        if os.environ.get('WEBSITE_SITE_NAME') is None:  # Only open browser locally
+            print(f"🌐 Opening browser automatically...")
+            webbrowser.open(f'http://localhost:{PORT}')
         
         try:
             httpd.serve_forever()
