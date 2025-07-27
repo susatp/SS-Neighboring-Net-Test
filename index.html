@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive La Bo Bo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            position: relative;
+        }
+
+        .title {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.2); }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.4); }
+        }
+
+        .labobo-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+        .labobo-character {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Base character design using actual image */
+        .labobo-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            filter: brightness(1) contrast(1) saturate(1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        /* Overlay elements for interactive features */
+        .character-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        /* Dynamic eyes that can be positioned over the image */
+        .dynamic-eyes {
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 40px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 5;
+        }
+
+        .dynamic-eye {
+            width: 25px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            position: relative;
+            border: 2px solid #333;
+        }
+
+        .dynamic-pupil {
+            width: 12px;
+            height: 12px;
+            background: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        /* Effect overlays */
+        .effect-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Hover zones - adjusted for image */
+        .hover-zone {
+            position: absolute;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+        }
+
+        .hover-zone:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .tickle-zone {
+            width: 150px;
+            height: 120px;
+            top: 55%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .face-zone {
+            width: 200px;
+            height: 150px;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .angry-zone {
+            width: 80px;
+            height: 100px;
+            top: 30%;
+            right: 15%;
+        }
+
+        /* Emotional states - modified for image-based character */
+        .labobo-character.tickled .labobo-image {
+            animation: wiggleImage 0.5s ease-in-out infinite;
+            filter: brightness(1.2) contrast(1.1) saturate(1.3) hue-rotate(90deg);
+            transform: scale(1.05);
+        }
+
+        .labobo-character.tickled .effect-overlay {
+            opacity: 0.3;
+            background: radial-gradient(circle, rgba(144, 238, 144, 0.4) 0%, transparent 70%);
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+
+        .labobo-character.tickled .dynamic-eyes {
+            opacity: 1;
+        }
+
+        .labobo-character.tickled .dynamic-eye {
+            transform: scaleY(0.3);
+        }
+
+        .labobo-character.happy .labobo-image {
+            filter: brightness(1.3) contrast(1.2) saturate(1.4) hue-rotate(45deg);
+            transform: scale(1.1);
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        .labobo-character.happy .effect-overlay {
+            opacity: 0.4;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.5) 0%, transparent 70%);
+            animation: sparkle 1s ease-in-out infinite;
+        }
+
+        .labobo-character.happy .dynamic-eyes {
+            opacity: 1;
+            animation: celebrate 1s ease-in-out infinite;
+        }
+
+        .labobo-character.angry .labobo-image {
+            filter: brightness(0.8) contrast(1.5) saturate(2) hue-rotate(-30deg);
+            animation: shake 0.2s ease-in-out infinite;
+        }
+
+        .labobo-character.angry .effect-overlay {
+            opacity: 0.5;
+            background: radial-gradient(circle, rgba(255, 68, 68, 0.6) 0%, transparent 70%);
+            animation: angryPulse 0.3s ease-in-out infinite;
+        }
+
+        .labobo-character.angry .dynamic-eyes {
+            opacity: 1;
+        }
+
+        .labobo-character.angry .dynamic-eye {
+            transform: scaleX(0.7) scaleY(1.3);
+        }
+
+        .labobo-character.angry .dynamic-pupil {
+            background: #cc0000;
+            transform: translate(-50%, -50%) scale(1.5);
+        }
+
+        /* Animations - updated for image-based character */
+        @keyframes wiggleImage {
+            0%, 100% { transform: scale(1.05) rotate(0deg); }
+            25% { transform: scale(1.05) rotate(-2deg); }
+            75% { transform: scale(1.05) rotate(2deg); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1.1) translateY(0px); }
+            50% { transform: scale(1.1) translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        @keyframes angryPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            25% { transform: translateX(-50%) rotate(-5deg); }
+            75% { transform: translateX(-50%) rotate(5deg); }
+        }
+
+        @keyframes armShake {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(10deg); }
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            50% { transform: translateX(-50%) rotate(20deg); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0px) translateY(0px); }
+            25% { transform: translateX(-2px) translateY(-2px); }
+            75% { transform: translateX(2px) translateY(2px); }
+        }
+
+        @keyframes angryArms {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-align: center;
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .instruction-item {
+            margin: 5px 0;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Particle effects */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { opacity: 0; transform: translateY(100vh) rotate(0deg); }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title { font-size: 2rem; }
+            .labobo-container { width: 350px; height: 350px; }
+            .instructions { font-size: 1rem; }
+            .hover-zone { border-width: 1px; }
+            .tickle-zone { width: 120px; height: 100px; }
+            .face-zone { width: 160px; height: 120px; }
+            .angry-zone { width: 60px; height: 80px; }
+        }
+
+        @media (max-width: 480px) {
+            .title { font-size: 1.5rem; }
+            .labobo-container { width: 280px; height: 280px; }
+            .instructions { font-size: 0.9rem; }
+            .instruction-item { padding: 8px 15px; margin: 3px 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <h1 class="title">Interactive La Bo Bo</h1>
+        
+        <div class="labobo-container">
+            <div class="labobo-character" id="labobo">
+                <!-- Main La Bo Bo Image -->
+                <img src="Images/LaBoImg1.jpg" alt="La Bo Bo" class="labobo-image" id="laboboImage">
+                
+                <!-- Character overlay for effects -->
+                <div class="character-overlay">
+                    <div class="effect-overlay"></div>
+                    
+                    <!-- Dynamic eyes for enhanced reactions -->
+                    <div class="dynamic-eyes">
+                        <div class="dynamic-eye">
+                            <div class="dynamic-pupil"></div>
+                        </div>
+                        <div class="dynamic-eye">
+                            <div class="dynamic-pupil"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Interactive zones -->
+            <div class="hover-zone tickle-zone" data-emotion="tickled" title="Tickle La Bo Bo's belly!"></div>
+            <div class="hover-zone face-zone" data-emotion="happy" title="Make La Bo Bo smile!"></div>
+            <div class="hover-zone angry-zone" data-emotion="angry" title="Make La Bo Bo angry!"></div>
+        </div>
+        
+        <div class="instructions">
+            <div class="instruction-item">🤗 Hover over the belly to tickle</div>
+            <div class="instruction-item">😊 Hover over the face to make happy</div>
+            <div class="instruction-item">😡 Hover over the right side to anger</div>
+        </div>
+    </div>
+
+    <script>
+        const labobo = document.getElementById('labobo');
+        const hoverZones = document.querySelectorAll('.hover-zone');
+        const particles = document.getElementById('particles');
+        
+        let currentEmotion = null;
+        let emotionTimeout = null;
+
+        // Create floating particles
+        function createParticles() {
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                particles.appendChild(particle);
+            }
+        }
+
+        // Handle hover events
+        hoverZones.forEach(zone => {
+            zone.addEventListener('mouseenter', (e) => {
+                const emotion = e.target.dataset.emotion;
+                setEmotion(emotion);
+                
+                // Add visual feedback to hover zone
+                e.target.style.background = 'rgba(255,255,255,0.2)';
+                e.target.style.transform = e.target.style.transform + ' scale(1.1)';
+            });
+            
+            zone.addEventListener('mouseleave', (e) => {
+                // Reset hover zone appearance
+                e.target.style.background = 'transparent';
+                e.target.style.transform = e.target.style.transform.replace(' scale(1.1)', '');
+                
+                // Reset emotion after a delay
+                clearTimeout(emotionTimeout);
+                emotionTimeout = setTimeout(() => {
+                    resetEmotion();
+                }, 1000);
+            });
+        });
+
+        function setEmotion(emotion) {
+            clearTimeout(emotionTimeout);
+            
+            // Remove all emotion classes
+            labobo.classList.remove('tickled', 'happy', 'angry');
+            
+            // Add new emotion class
+            if (emotion && emotion !== currentEmotion) {
+                labobo.classList.add(emotion);
+                currentEmotion = emotion;
+                
+                // Play sound effect (you can add actual audio files)
+                playEmotionSound(emotion);
+                
+                // Create emotion-specific effects
+                createEmotionEffects(emotion);
+            }
+        }
+
+        function resetEmotion() {
+            labobo.classList.remove('tickled', 'happy', 'angry');
+            currentEmotion = null;
+        }
+
+        function playEmotionSound(emotion) {
+            // Placeholder for sound effects
+            // You can add actual audio files here
+            console.log(`Playing ${emotion} sound effect`);
+        }
+
+        function createEmotionEffects(emotion) {
+            const effectsContainer = document.createElement('div');
+            effectsContainer.style.position = 'absolute';
+            effectsContainer.style.top = '50%';
+            effectsContainer.style.left = '50%';
+            effectsContainer.style.transform = 'translate(-50%, -50%)';
+            effectsContainer.style.pointerEvents = 'none';
+            effectsContainer.style.zIndex = '20';
+            
+            let emoji = '';
+            let color = '';
+            
+            switch(emotion) {
+                case 'tickled':
+                    emoji = '😂';
+                    color = '#90ee90';
+                    break;
+                case 'happy':
+                    emoji = '😊';
+                    color = '#ffd700';
+                    break;
+                case 'angry':
+                    emoji = '😡';
+                    color = '#ff4444';
+                    break;
+            }
+            
+            // Create floating emoji effect
+            for (let i = 0; i < 5; i++) {
+                const emojiElement = document.createElement('div');
+                emojiElement.innerHTML = emoji;
+                emojiElement.style.position = 'absolute';
+                emojiElement.style.fontSize = '2rem';
+                emojiElement.style.left = (Math.random() * 200 - 100) + 'px';
+                emojiElement.style.top = (Math.random() * 200 - 100) + 'px';
+                emojiElement.style.animation = `floatUp 1s ease-out forwards`;
+                emojiElement.style.animationDelay = (i * 0.1) + 's';
+                effectsContainer.appendChild(emojiElement);
+            }
+            
+            document.body.appendChild(effectsContainer);
+            
+            // Remove effects after animation
+            setTimeout(() => {
+                document.body.removeChild(effectsContainer);
+            }, 1500);
+        }
+
+        // Add floating animation for emojis
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes floatUp {
+                0% {
+                    opacity: 1;
+                    transform: translateY(0px) scale(1);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translateY(-100px) scale(0.5);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Eye tracking mouse movement - updated for dynamic eyes
+        document.addEventListener('mousemove', (e) => {
+            if (currentEmotion === 'angry') return; // Eyes fixed when angry
+            
+            const dynamicPupils = document.querySelectorAll('.dynamic-pupil');
+            const dynamicEyes = document.querySelectorAll('.dynamic-eye');
+            
+            dynamicEyes.forEach((eye, index) => {
+                const pupil = dynamicPupils[index];
+                const eyeRect = eye.getBoundingClientRect();
+                const eyeCenterX = eyeRect.left + eyeRect.width / 2;
+                const eyeCenterY = eyeRect.top + eyeRect.height / 2;
+                
+                const angle = Math.atan2(e.clientY - eyeCenterY, e.clientX - eyeCenterX);
+                const distance = Math.min(6, Math.sqrt(Math.pow(e.clientX - eyeCenterX, 2) + Math.pow(e.clientY - eyeCenterY, 2)) / 15);
+                
+                const pupilX = Math.cos(angle) * distance;
+                const pupilY = Math.sin(angle) * distance;
+                
+                pupil.style.transform = `translate(calc(-50% + ${pupilX}px), calc(-50% + ${pupilY}px))`;
+            });
+        });
+
+        // Initialize particles
+        createParticles();
+
+        // Add some interactive feedback
+        labobo.addEventListener('click', () => {
+            const laboboImage = document.getElementById('laboboImage');
+            laboboImage.style.transform = 'scale(1.15)';
+            setTimeout(() => {
+                laboboImage.style.transform = 'scale(1)';
+            }, 200);
+        });
+
+        // Add image load error handling
+        document.getElementById('laboboImage').addEventListener('error', function() {
+            console.log('Image failed to load. Please try again later.');
+            this.alt = 'La Bo Bo (Image not found - check Images/LaBoImg1.jpg)';
+            this.style.background = 'linear-gradient(145deg, #ff9a9a, #ff6b6b)';
+            this.style.display = 'flex';
+            this.style.alignItems = 'center';
+            this.style.justifyContent = 'center';
+            this.style.color = 'white';
+            this.style.fontSize = '16px';
+            this.style.textAlign = 'center';
+        });
+    </script>
+</body>
+</html>
